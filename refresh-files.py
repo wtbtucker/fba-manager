@@ -18,14 +18,15 @@ def main():
     # TODO: change the listbox to a table
     # add rows (using lists?) for each entry instead of strings
     
-    sorted_df = pd.DataFrame()
     header_list = list(sorting_df.columns.values)
+    sorted_df = pd.DataFrame(columns=header_list)
     sorted_items = [""]
 
     sort_layout = [[sg.Text(FBA_name)],
         [sg.Input(key='-IN-', do_not_clear=False)],
         [sg.Text('SKU'), sg.Text('UPC'), sg.Text('Location'), sg.Text('Location Number')],
-        [sg.Table(values=sorted_items, headings=header_list,
+        [sg.Table(headings=header_list,
+                  values=sorted_items, 
                   alternating_row_color='lightblue',
                   size=(50,30), key='-LIST-')],
         [sg.Button('Exit')]]
@@ -40,9 +41,8 @@ def main():
         if event == '-IN-' + '_Enter':
             user_input = values['-IN-']
             out_df = sort(user_input, sorting_df)
-            pd.concat([sorted_df, out_df])
-            out_list = out_df.values.tolist()
-            sorted_items.extend(out_list)
+            sorted_df = pd.concat([sorted_df, out_df])
+            sorted_items = sorted_df.values.tolist()
             window['-LIST-'].update(values=sorted_items)
 
     window.close()
@@ -82,7 +82,7 @@ def sort(user_input, sorting_df):
         idx = idx_list[0]
         sorting_df.loc[idx,'Sorted'] = sorting_df.loc[idx,'Sorted'] + 1
         sorting_df.loc[idx,'Difference'] -= sorting_df.loc[idx,'Difference']
-        out_df = sorting_df.loc[idx]
+        out_df = sorting_df.loc[[idx]]
     else:
         columns = list(sorting_df.columns.values)
         data = ['Not on order', user_input]
