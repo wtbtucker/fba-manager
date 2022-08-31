@@ -4,6 +4,7 @@ import csv
 import glob
 import PySimpleGUI as sg
 
+# TODO: store NOO
 def main():
     df, FBA_name = import_templates()
 
@@ -13,11 +14,20 @@ def main():
     boxing_df = df.copy()
     boxing_df['Difference'], boxing_df['Boxed'] = [boxing_df['OnOrder'], 0]
 
-    sorted_items = []
+
+    # TODO: change the listbox to a table
+    # add rows (using lists?) for each entry instead of strings
+    
+    sorted_df = pd.DataFrame()
+    header_list = list(sorting_df.columns.values)
+    sorted_items = [""]
+
     sort_layout = [[sg.Text(FBA_name)],
         [sg.Input(key='-IN-', do_not_clear=False)],
         [sg.Text('SKU'), sg.Text('UPC'), sg.Text('Location'), sg.Text('Location Number')],
-        [sg.Listbox(values=sorted_items, size=(50,30), key='-LIST-')],
+        [sg.Table(values=sorted_items, headings=header_list,
+                  alternating_row_color='lightblue',
+                  size=(50,30), key='-LIST-')],
         [sg.Button('Exit')]]
 
 
@@ -29,8 +39,10 @@ def main():
             break
         if event == '-IN-' + '_Enter':
             user_input = values['-IN-']
-            out_string = sort(user_input, sorting_df)
-            sorted_items.append(out_string)
+            out_df = sort(user_input, sorting_df)
+            pd.concat([sorted_df, out_df])
+            out_list = out_df.values.tolist()
+            sorted_items.extend(out_list)
             window['-LIST-'].update(values=sorted_items)
 
     window.close()
@@ -70,11 +82,15 @@ def sort(user_input, sorting_df):
         idx = idx_list[0]
         sorting_df.loc[idx,'Sorted'] = sorting_df.loc[idx,'Sorted'] + 1
         sorting_df.loc[idx,'Difference'] -= sorting_df.loc[idx,'Difference']
-        SKU = sorting_df.loc[idx,'Merchant SKU']
-        Location = sorting_df.loc[idx, 'ShippingID']
-        out_string = SKU + ' ' + user_input + ' ' + Location
+        out_df = sorting_df.loc[idx]
     else:
-        out_string = 'Not on order' + ' ' + user_input
-    return out_string
+        columns = list(sorting_df.columns.values)
+        data = ['Not on order', user_input]
+        while len(data) < len(columns):
+            data.append('')
+        out_df = pd.DataFrame(columns=columns)
+        out_df.loc[len(out_df)]= data
+        # TODO: return dataframe with UPC and Not on order
+    return out_df
     
 main()
