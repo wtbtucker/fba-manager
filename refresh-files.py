@@ -29,11 +29,8 @@ def main():
             break
         if event == '-IN-' + '_Enter':
             user_input = values['-IN-']
-            if sort(user_input, sorting_df):
-                sorted_items.append(user_input)
-            else:
-                sorted_NOO.append(user_input)
-                sorted_items.append('Not on order')
+            out_string = sort(user_input, sorting_df)
+            sorted_items.append(out_string)
             window['-LIST-'].update(values=sorted_items)
 
     window.close()
@@ -77,10 +74,16 @@ def import_templates():
 
 def sort(user_input, sorting_df):
     # If query returns dataframe
-    idx = sorting_df.index[(sorting_df['external-id '] == user_input) & (sorting_df['Difference'] > 0)].tolist()[0]
-    sorting_df.loc[idx,'Sorted'] = sorting_df.loc[idx,'Sorted'] + 1
-    sorting_df.loc[idx,'Difference'] -= sorting_df.loc[idx,'Difference']
-    print(sorting_df.loc[idx])
-    return True
+    idx_list = sorting_df.index[(sorting_df['external-id '] == user_input) & (sorting_df['Difference'] > 0)].tolist()
+    if idx_list:
+        idx = idx_list[0]
+        sorting_df.loc[idx,'Sorted'] = sorting_df.loc[idx,'Sorted'] + 1
+        sorting_df.loc[idx,'Difference'] -= sorting_df.loc[idx,'Difference']
+        SKU = sorting_df.loc[idx,'Merchant SKU']
+        Location = sorting_df.loc[idx, 'ShippingID']
+        out_string = SKU + ' ' + user_input + ' ' + Location
+    else:
+        out_string = 'Not on order' + ' ' + user_input
+    return out_string
     
 main()
