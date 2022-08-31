@@ -5,13 +5,15 @@ import glob
 
 # Set path to current file location
 def main():
-    df = import_templates()
+    df, FBA_name = import_templates()
 
     sorting_df = df.copy()
     sorting_df['Difference'], sorting_df['Sorted'] = [sorting_df['OnOrder'], 0]
 
     boxing_df = df.copy()
     boxing_df['Difference'], boxing_df['Boxed'] = [boxing_df['OnOrder'], 0]
+
+    print(FBA_name)
 
 # TODO: Add functionality for when the sorting app is opened
 # Current FBA orders created by refresh files
@@ -38,6 +40,6 @@ def import_templates():
             template.insert(10,'ShippingID', ShippingId)
             df = pd.concat([df,template])
     df = df.rename(columns={'Shipped':'OnOrder'})
-    return df
+    return df, FBA_name
 
 main()
