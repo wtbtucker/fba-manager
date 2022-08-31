@@ -6,12 +6,10 @@ import PySimpleGUI as sg
 
 def main():
     df, FBA_name = import_templates()
-    df['external-id '] = df['external-id '].map(lambda u: u.lstrip('UPC: '))
-    
+
     # Initialize dataframes for sorting and boxing
     sorting_df = df.copy()
     sorting_df['Difference'], sorting_df['Sorted'] = [sorting_df['OnOrder'], 0]
-    sorting_df['external-id '] = sorting_df['external-id '].map(lambda u: u.lstrip('UPC: '))
     boxing_df = df.copy()
     boxing_df['Difference'], boxing_df['Boxed'] = [boxing_df['OnOrder'], 0]
 
@@ -21,6 +19,7 @@ def main():
         [sg.Input(key='-IN-', do_not_clear=False)],
         [sg.Listbox(values=sorted_items, size=(43,20), key='-LIST-')],
         [sg.Button('Exit')]]
+
 
     window = sg.Window('Sorting App', sort_layout, finalize=True)
     window['-IN-'].bind('<Return>', '_Enter')
@@ -36,8 +35,6 @@ def main():
                 sorted_NOO.append(user_input)
                 sorted_items.append('Not on order')
             window['-LIST-'].update(values=sorted_items)
-
-
 
     window.close()
 
@@ -74,8 +71,16 @@ def import_templates():
             template.insert(10,'ShippingID', ShippingId)
             df = pd.concat([df,template])
     df = df.rename(columns={'Shipped':'OnOrder'})
+    df['external-id '] = df['external-id '].map(lambda u: u.lstrip('UPC: '))
+    df = df.reset_index(drop=True)
     return df, FBA_name
 
 def sort(user_input, sorting_df):
-    sorting_df[""]
+    # If query returns dataframe
+    idx = sorting_df.index[(sorting_df['external-id '] == user_input) & (sorting_df['Difference'] > 0)].tolist()[0]
+    sorting_df.loc[idx,'Sorted'] = sorting_df.loc[idx,'Sorted'] + 1
+    sorting_df.loc[idx,'Difference'] -= sorting_df.loc[idx,'Difference']
+    print(sorting_df.loc[idx])
+    return True
+    
 main()
