@@ -14,10 +14,10 @@ def main():
     boxing_df['Difference'], boxing_df['Boxed'] = [boxing_df['OnOrder'], 0]
 
     sorted_items = []
-    sorted_NOO = []
     sort_layout = [[sg.Text(FBA_name)],
         [sg.Input(key='-IN-', do_not_clear=False)],
-        [sg.Listbox(values=sorted_items, size=(43,20), key='-LIST-')],
+        [sg.Text('SKU'), sg.Text('UPC'), sg.Text('Location'), sg.Text('Location Number')],
+        [sg.Listbox(values=sorted_items, size=(50,30), key='-LIST-')],
         [sg.Button('Exit')]]
 
 
@@ -35,15 +35,6 @@ def main():
 
     window.close()
 
-
-# TODO: Sorting
-# count of items on order
-# free-text box, event = enter
-
-# TODO: Add functionality for when the sorting app is opened
-# Current FBA orders created by refresh files
-# format of OpenFile and OpenBox file and when  they are created?
-# format of temp files
 
 def import_templates():
     # Read all of the files in FBA templates folder
