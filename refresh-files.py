@@ -9,6 +9,8 @@ def main():
     df, FBA_name = import_templates()
 
     # Initialize dataframes for sorting and boxing
+    location_list = df['ShippingID'].unique().tolist()
+
     sorting_df = df.copy()
     sorting_df['Difference'], sorting_df['Sorted'] = [sorting_df['OnOrder'], 0]
     boxing_df = df.copy()
@@ -18,7 +20,7 @@ def main():
     # TODO: list for listbox instead of df to list
     # TODO: change headings to what we actually use
     # TODO: list of locations in sorting_df
-    header_list = ['Title', 'external-id ', 'Shipment ID']
+    header_list = ['Title', 'external-id ', 'Shipment ID', 'Location']
     sorted_items = [""]
 
     sort_layout = [[sg.Text(FBA_name)],
@@ -27,6 +29,7 @@ def main():
         [sg.Table(headings=header_list,
                   values=sorted_items, 
                   alternating_row_color='lightblue',
+                  auto_size_columns = True,
                   size=(50,30), key='-LIST-')],
         [sg.Button('Exit')]]
 
@@ -39,7 +42,6 @@ def main():
             break
         if event == '-IN-' + '_Enter':
             user_input = values['-IN-']
-            # out_df = sort(user_input, sorting_df)
 
             # return first index where user_input matches UPC and Difference > 0
             idx_list = sorting_df.index[(sorting_df['external-id '] == user_input) & (sorting_df['Difference'] > 0)].tolist()
@@ -47,18 +49,17 @@ def main():
                 idx = idx_list[0]
                 # edit sorting df to reflect scanned item
                 sorting_df.loc[idx,'Sorted'] = sorting_df.loc[idx,'Sorted'] + 1
-                sorting_df.loc[idx,'Difference'] -= sorting_df.loc[idx,'Difference']
+                sorting_df.loc[idx,'Difference'] = sorting_df.loc[idx,'Difference'] - 1
 
                 out_list = sorting_df.loc[[idx], ['Title', 'external-id ', 'ShippingID']].values.tolist()
+                location = location_list.index(out_list[0][2]) + 1
+                out_list[0].append(location)
             else:
-                columns = list(sorting_df.columns.values)
-                data = ['Not on order', user_input]
-                while len(data) < len(columns):
-                    data.append('')
-                out_list = data
+                out_list = [['Not on order', user_input,"",""]]
 
             sorted_items.extend(out_list)
             window['-LIST-'].update(values=sorted_items)
+            window.refresh()
 
     window.close()
 
@@ -89,23 +90,5 @@ def import_templates():
     df['external-id '] = df['external-id '].map(lambda u: u.lstrip('UPC: '))
     df = df.reset_index(drop=True)
     return df, FBA_name
-
-def sort(user_input, sorting_df):
-    # TODO: see if sorting_df is actually changed by the function
-    idx_list = sorting_df.index[(sorting_df['external-id '] == user_input) & (sorting_df['Difference'] > 0)].tolist()
-    if idx_list:
-        idx = idx_list[0]
-        sorting_df.loc[idx,'Sorted'] = sorting_df.loc[idx,'Sorted'] + 1
-        sorting_df.loc[idx,'Difference'] -= sorting_df.loc[idx,'Difference']
-        out_df = sorting_df.loc[[idx]]
-    else:
-        columns = list(sorting_df.columns.values)
-        data = ['Not on order', user_input]
-        while len(data) < len(columns):
-            data.append('')
-        out_df = pd.DataFrame(columns=columns)
-        out_df.loc[len(out_df)]= data
-        # TODO: return dataframe with UPC and Not on order
-    return out_df
     
 main()
