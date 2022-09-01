@@ -26,7 +26,6 @@ def main():
 
     sort_layout = [[sg.Text(FBA_name)],
         [sg.Input(key='-IN-', do_not_clear=False)],
-        [sg.Text('SKU'), sg.Text('UPC'), sg.Text('Location'), sg.Text('Location Number')],
         [sg.Table(headings=header_list,
                   values=sorted_items,
                   background_color = 'linen',
