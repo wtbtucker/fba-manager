@@ -22,14 +22,16 @@ def main():
     # TODO: change headings to what we actually use
     # TODO: list of locations in sorting_df
     header_list = ['Title', 'external-id ', 'Shipment ID', 'Location']
-    sorted_items = [""]
+    sorted_items = []
 
     sort_layout = [[sg.Text(FBA_name)],
         [sg.Input(key='-IN-', do_not_clear=False)],
         [sg.Text('SKU'), sg.Text('UPC'), sg.Text('Location'), sg.Text('Location Number')],
         [sg.Table(headings=header_list,
-                  values=sorted_items, 
-                  alternating_row_color ='lightblue',
+                  values=sorted_items,
+                  background_color = 'linen',
+                  text_color = 'black',
+                  alternating_row_color ='light blue',
                   auto_size_columns = False,
                   col_widths = [60,15,15,15],
                   size=(50,30), key='-LIST-')],
@@ -47,15 +49,9 @@ def main():
 
             # return first index where user_input matches UPC and Difference > 0
             sample_df = sorting_df.loc[(sorting_df['external-id '] == user_input) & (sorting_df['Difference'] != 0)]
-            print(sample_df)
             idx_list = sample_df.index.values.tolist()
-            # idx_list = np.where((sorting_df['external-id '] == user_input) & (sorting_df['Difference'] != 0))
-            # idx_list = list(idx_list[0])
             if idx_list:
-                idx = idx_list[0]
-                # edit sorting df to reflect scanned item
-                # skipping over these steps in the debugger?
-                
+                idx = idx_list[0]               
                 sorting_df.iloc[idx, sorting_df.columns.get_loc('Sorted')] = sorting_df.iloc[idx, sorting_df.columns.get_loc('Sorted')] + 1
                 sorting_df.iloc[idx, sorting_df.columns.get_loc('Difference')] = sorting_df.iloc[idx, sorting_df.columns.get_loc('Difference')] - 1
 
