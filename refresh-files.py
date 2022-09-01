@@ -15,11 +15,10 @@ def main():
     boxing_df['Difference'], boxing_df['Boxed'] = [boxing_df['OnOrder'], 0]
 
 
-    # TODO: change the listbox to a table
-    # add rows (using lists?) for each entry instead of strings
-    
-    header_list = list(sorting_df.columns.values)
-    sorted_df = pd.DataFrame(columns=header_list)
+    # TODO: list for listbox instead of df to list
+    # TODO: change headings to what we actually use
+    # TODO: list of locations in sorting_df
+    header_list = ['Title', 'external-id ', 'Shipment ID']
     sorted_items = [""]
 
     sort_layout = [[sg.Text(FBA_name)],
@@ -40,9 +39,25 @@ def main():
             break
         if event == '-IN-' + '_Enter':
             user_input = values['-IN-']
-            out_df = sort(user_input, sorting_df)
-            sorted_df = pd.concat([sorted_df, out_df])
-            sorted_items = sorted_df.values.tolist()
+            # out_df = sort(user_input, sorting_df)
+
+            # return first index where user_input matches UPC and Difference > 0
+            idx_list = sorting_df.index[(sorting_df['external-id '] == user_input) & (sorting_df['Difference'] > 0)].tolist()
+            if idx_list:
+                idx = idx_list[0]
+                # edit sorting df to reflect scanned item
+                sorting_df.loc[idx,'Sorted'] = sorting_df.loc[idx,'Sorted'] + 1
+                sorting_df.loc[idx,'Difference'] -= sorting_df.loc[idx,'Difference']
+
+                out_list = sorting_df.loc[[idx], ['Title', 'external-id ', 'ShippingID']].values.tolist()
+            else:
+                columns = list(sorting_df.columns.values)
+                data = ['Not on order', user_input]
+                while len(data) < len(columns):
+                    data.append('')
+                out_list = data
+
+            sorted_items.extend(out_list)
             window['-LIST-'].update(values=sorted_items)
 
     window.close()
@@ -76,7 +91,7 @@ def import_templates():
     return df, FBA_name
 
 def sort(user_input, sorting_df):
-    # If query returns dataframe
+    # TODO: see if sorting_df is actually changed by the function
     idx_list = sorting_df.index[(sorting_df['external-id '] == user_input) & (sorting_df['Difference'] > 0)].tolist()
     if idx_list:
         idx = idx_list[0]
