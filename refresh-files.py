@@ -28,8 +28,9 @@ def main():
         [sg.Text('SKU'), sg.Text('UPC'), sg.Text('Location'), sg.Text('Location Number')],
         [sg.Table(headings=header_list,
                   values=sorted_items, 
-                  alternating_row_color='lightblue',
-                  auto_size_columns = True,
+                  alternating_row_color ='lightblue',
+                  auto_size_columns = False,
+                  col_widths = [60,15,15,15],
                   size=(50,30), key='-LIST-')],
         [sg.Button('Exit')]]
 
