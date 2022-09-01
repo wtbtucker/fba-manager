@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import os
 import csv
 import glob
@@ -45,12 +46,18 @@ def main():
             user_input = values['-IN-']
 
             # return first index where user_input matches UPC and Difference > 0
-            idx_list = sorting_df.index[(sorting_df['external-id '] == user_input) & (sorting_df['Difference'] > 0)].tolist()
+            sample_df = sorting_df.loc[(sorting_df['external-id '] == user_input) & (sorting_df['Difference'] != 0)]
+            print(sample_df)
+            idx_list = sample_df.index.values.tolist()
+            # idx_list = np.where((sorting_df['external-id '] == user_input) & (sorting_df['Difference'] != 0))
+            # idx_list = list(idx_list[0])
             if idx_list:
                 idx = idx_list[0]
                 # edit sorting df to reflect scanned item
-                sorting_df.loc[idx,'Sorted'] = sorting_df.loc[idx,'Sorted'] + 1
-                sorting_df.loc[idx,'Difference'] = sorting_df.loc[idx,'Difference'] - 1
+                # skipping over these steps in the debugger?
+                
+                sorting_df.iloc[idx, sorting_df.columns.get_loc('Sorted')] = sorting_df.iloc[idx, sorting_df.columns.get_loc('Sorted')] + 1
+                sorting_df.iloc[idx, sorting_df.columns.get_loc('Difference')] = sorting_df.iloc[idx, sorting_df.columns.get_loc('Difference')] - 1
 
                 out_list = sorting_df.loc[[idx], ['Title', 'external-id ', 'ShippingID']].values.tolist()
                 location = location_list.index(out_list[0][2]) + 1
