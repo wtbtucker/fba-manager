@@ -85,6 +85,7 @@ def import_templates():
                     sep = '-'
                     FBA_name = row[1].split(sep, 1)[0]
                     break
+                
             # Read tsv file into dataframe after header
             template = pd.read_table(f, delimiter='\t', header=4)
             template.insert(10,'ShippingID', ShippingId)
